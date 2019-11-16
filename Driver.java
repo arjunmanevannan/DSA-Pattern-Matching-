@@ -1,43 +1,52 @@
 package com.dsa.pattern;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javafx.util.Pair;
+
 public class Driver {
 
 	public static void main(String[] args) {
-		final String patternToSearch = "test";
+		final String patternToSearch = "text";
 		final String sampleText = "this is a sample text"; 
 		//		int test = searchUsingBruteForce(patternToSearch, sampleText);
 		//		System.out.print(test);
 		//		searchUsingKMP();
-		searchUsingBoyerMoore(patternToSearch, sampleText);
+//		int test = searchUsingBoyerMoore(patternToSearch, sampleText);
+//		System.out.println(test);
+//		System.out.println(sampleText.charAt(17));
 	}
 
 	private static int searchUsingBoyerMoore(String patternToSearch, String sampleText) {
 
 		int index = -1;
+		int shiftBy = 0;
 		HashMap badMatchTable = constructBadMatchTable(patternToSearch.toLowerCase());
-		//		printMap(badMatchTable);
-		
+		int j = patternToSearch.length()-1;
 		for(int i=patternToSearch.length()-1; i<sampleText.length();) {
-			int j = patternToSearch.length()-1;
+			
 			if(sampleText.charAt(i) == patternToSearch.charAt(j)) {
 				i--;
 				j--;
 				
-				if(j==0) {
+				if(j<0) {
+					index = i+1;
 					break;
 				}
 			}
 			else {
-				Integer shiftLength = (Integer) badMatchTable.get(sampleText.charAt(i));
-				System.out.println("RAM"+shiftLength);
-//				i = i+shiftLength;
-//				j = patternToSearch.length()-1;
+				Integer shiftLength = (Integer)badMatchTable.get(sampleText.charAt(i));
+				if(shiftLength==null) {
+					shiftLength = (Integer)badMatchTable.get('*');
+				}
+				shiftBy = shiftLength.intValue();
+				i+=shiftBy;
+				j = patternToSearch.length()-1;
 			}
 		}
 		return index;
@@ -63,8 +72,25 @@ public class Driver {
 
 
 	private static void searchUsingKMP() {
+		
+		
+		
 
-
+	}
+	
+	
+	private static HashMap<Character, Integer> constructPiTable(String patternToSearch) {
+		ArrayList <Pair <Character, Integer> > l = new ArrayList <Pair <Character, Integer> > (); 
+		
+		for(int i=0; i<patternToSearch.length();i++) {
+			Pair<Character, Integer> p1 = new Pair<Character, Integer>(patternToSearch.charAt(i),0);
+			l.add(p1);
+		}
+		Modify the table to house the char and index. 
+		
+		
+		
+		return piTable;
 	}
 
 	private static int searchUsingBruteForce(String patternToSearch, String sampleText) {
