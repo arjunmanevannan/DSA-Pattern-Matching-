@@ -17,9 +17,9 @@ public class Driver {
 		//		int test = searchUsingBruteForce(patternToSearch, sampleText);
 		//		System.out.print(test);
 		//		searchUsingKMP();
-//		int test = searchUsingBoyerMoore(patternToSearch, sampleText);
-//		System.out.println(test);
-//		System.out.println(sampleText.charAt(17));
+		//		int test = searchUsingBoyerMoore(patternToSearch, sampleText);
+		//		System.out.println(test);
+		//		System.out.println(sampleText.charAt(17));
 	}
 
 	private static int searchUsingBoyerMoore(String patternToSearch, String sampleText) {
@@ -29,11 +29,11 @@ public class Driver {
 		HashMap badMatchTable = constructBadMatchTable(patternToSearch.toLowerCase());
 		int j = patternToSearch.length()-1;
 		for(int i=patternToSearch.length()-1; i<sampleText.length();) {
-			
+
 			if(sampleText.charAt(i) == patternToSearch.charAt(j)) {
 				i--;
 				j--;
-				
+
 				if(j<0) {
 					index = i+1;
 					break;
@@ -71,27 +71,48 @@ public class Driver {
 	}
 
 
-	private static void searchUsingKMP() {
-		
-		
-		
-
-	}
-	
-	
-	private static HashMap<Character, Integer> constructPiTable(String patternToSearch) {
-		ArrayList <Pair <Character, Integer> > l = new ArrayList <Pair <Character, Integer> > (); 
-		
-		for(int i=0; i<patternToSearch.length();i++) {
-			Pair<Character, Integer> p1 = new Pair<Character, Integer>(patternToSearch.charAt(i),0);
-			l.add(p1);
+	private static Boolean searchUsingKMP(char[] pattern, char[] text) {
+		int lps[] = constructPiTable(pattern);
+		int i=0;
+		int j=0;
+		while(i < text.length && j < pattern.length){
+			if(text[i] == pattern[j]){
+				i++;
+				j++;
+			}else{
+				if(j!=0){
+					j = lps[j-1];
+				}else{
+					i++;
+				}
+			}
 		}
-		Modify the table to house the char and index. 
-		
-		
-		
-		return piTable;
+		if(j == pattern.length){
+			return true;
+		}
+		return false;
 	}
+
+
+	private static int[] constructPiTable(char[] pattern) {
+		int [] lps = new int[pattern.length];
+		int index =0;
+		for(int i=1; i < pattern.length;){
+			if(pattern[i] == pattern[index]){
+				lps[i] = index + 1;
+				index++;
+				i++;
+			}else{
+				if(index != 0){
+					index = lps[index-1];
+				}else{
+					lps[i] =0;
+					i++;
+				}
+			}
+		}
+		return lps;
+	}	
 
 	private static int searchUsingBruteForce(String patternToSearch, String sampleText) {
 		int pointer = 0,i = 0;
