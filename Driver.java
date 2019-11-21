@@ -12,12 +12,13 @@ import javafx.util.Pair;
 public class Driver {
 
 	public static void main(String[] args) {
-		final String patternToSearch = "TCCTATTCTT";
-		final String sampleText = "this is a sample text"; 
+//		final String patternToSearch = "TCCTATTCTT";
+		final String patternToSearch = "TCTCGTATTCTTTTAT";
+		final String sampleText = "TTATAGATCTCGTATTCTTTTATAGATCTCCTATTCTT"; 
 		//		int test = searchUsingBruteForce(patternToSearch, sampleText);
 		//		System.out.print(test);
 		//		searchUsingKMP();
-				int test = searchUsingBoyerMoore(patternToSearch, sampleText);
+				int test = searchUsingBoyerMoore(patternToSearch.toLowerCase(), sampleText.toLowerCase());
 				System.out.println(test);
 		//		System.out.println(sampleText.charAt(17));
 	}
@@ -26,10 +27,12 @@ public class Driver {
 
 		int index = -1;
 		int shiftBy = 0;
-		HashMap badMatchTable = constructBadMatchTable(patternToSearch.toLowerCase());
+		HashMap<Character, Integer> badMatchTable = constructBadMatchTable(patternToSearch);
 		int j = patternToSearch.length()-1;
 		for(int i=patternToSearch.length()-1; i<sampleText.length();) {
-
+//			System.out.println(sampleText.charAt(i));
+//			System.out.println(patternToSearch.charAt(j));
+			
 			if(sampleText.charAt(i) == patternToSearch.charAt(j)) {
 				i--;
 				j--;
