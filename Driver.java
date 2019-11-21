@@ -12,13 +12,13 @@ import javafx.util.Pair;
 public class Driver {
 
 	public static void main(String[] args) {
-		final String patternToSearch = "text";
+		final String patternToSearch = "TCCTATTCTT";
 		final String sampleText = "this is a sample text"; 
 		//		int test = searchUsingBruteForce(patternToSearch, sampleText);
 		//		System.out.print(test);
 		//		searchUsingKMP();
-		//		int test = searchUsingBoyerMoore(patternToSearch, sampleText);
-		//		System.out.println(test);
+				int test = searchUsingBoyerMoore(patternToSearch, sampleText);
+				System.out.println(test);
 		//		System.out.println(sampleText.charAt(17));
 	}
 
@@ -63,10 +63,11 @@ public class Driver {
 
 	private static HashMap<Character, Integer> constructBadMatchTable(String patternToSearch) {
 		LinkedHashMap<Character,Integer> badMatchTable = new LinkedHashMap<Character,Integer>();		
-		for(int i=0; i<patternToSearch.length();i++) {
+		for(int i=0; i<patternToSearch.length()-1;i++) {
 			badMatchTable.put(patternToSearch.charAt(i), Math.max(1, patternToSearch.length() - i - 1));
 		}
 		badMatchTable.put('*', patternToSearch.length());
+		printMap(badMatchTable);
 		return badMatchTable;
 	}
 
