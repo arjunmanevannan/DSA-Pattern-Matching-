@@ -1,6 +1,7 @@
 package com.dsa.pattern;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -12,27 +13,29 @@ import javafx.util.Pair;
 public class Driver {
 
 	public static void main(String[] args) {
-//		final String patternToSearch = "TCCTATTCTT";
-		final String patternToSearch = "TCTCGTATTCTTTTAT";
-		final String sampleText = "TTATAGATCTCGTATTCTTTTATAGATCTCCTATTCTT"; 
-		//		int test = searchUsingBruteForce(patternToSearch, sampleText);
-		//		System.out.print(test);
-		//		searchUsingKMP();
-				int test = searchUsingBoyerMoore(patternToSearch.toLowerCase(), sampleText.toLowerCase());
-				System.out.println(test);
-		//		System.out.println(sampleText.charAt(17));
+		final String sampleText = "TTATAGATCTCGTATTCTTTTATAGATCTCCTATTCTT";
+		final String patternToSearch = "TCCTATTCTT";
+		//		final String patternToSearch = "BARBER";
+		//		final String sampleText = "JIM_SAW_ME_IN_A_BARBERSHOP"; 
+		int naiveIndex = searchUsingBruteForce(patternToSearch, sampleText);
+		System.out.println(naiveIndex);
+		int kmpIndex = searchUsingKMP(patternToSearch.toLowerCase().toCharArray(), sampleText.toLowerCase().toCharArray());
+		System.out.println(kmpIndex);
+		int horspoolIndex = searchUsingBoyerMooreHorspool(patternToSearch.toLowerCase(), sampleText.toLowerCase());
+		System.out.println(horspoolIndex);
 	}
 
-	private static int searchUsingBoyerMoore(String patternToSearch, String sampleText) {
+	private static int searchUsingBoyerMooreHorspool(String patternToSearch, String sampleText) {
 
 		int index = -1;
 		int shiftBy = 0;
 		HashMap<Character, Integer> badMatchTable = constructBadMatchTable(patternToSearch);
 		int j = patternToSearch.length()-1;
 		for(int i=patternToSearch.length()-1; i<sampleText.length();) {
-//			System.out.println(sampleText.charAt(i));
-//			System.out.println(patternToSearch.charAt(j));
-			
+			//			System.out.println();
+			//			System.out.println(sampleText.charAt(i));
+			//			System.out.println(patternToSearch.charAt(j));
+			//			System.out.println("The search starts at "+i);
 			if(sampleText.charAt(i) == patternToSearch.charAt(j)) {
 				i--;
 				j--;
@@ -43,6 +46,7 @@ public class Driver {
 				}
 			}
 			else {
+				//				System.out.println("Getting the number for "+sampleText.charAt(i));
 				Integer shiftLength = (Integer)badMatchTable.get(sampleText.charAt(i));
 				if(shiftLength==null) {
 					shiftLength = (Integer)badMatchTable.get('*');
@@ -54,6 +58,7 @@ public class Driver {
 		}
 		return index;
 	}
+
 
 
 	private static void printMap(HashMap<Character, Integer> badMatchTable) {
@@ -70,31 +75,35 @@ public class Driver {
 			badMatchTable.put(patternToSearch.charAt(i), Math.max(1, patternToSearch.length() - i - 1));
 		}
 		badMatchTable.put('*', patternToSearch.length());
-		printMap(badMatchTable);
+		//		printMap(badMatchTable);
 		return badMatchTable;
 	}
 
 
-	private static Boolean searchUsingKMP(char[] pattern, char[] text) {
+	private static int searchUsingKMP(char[] pattern, char[] text) {
 		int lps[] = constructPiTable(pattern);
+		//		System.out.println(Arrays.toString(lps));
 		int i=0;
 		int j=0;
 		while(i < text.length && j < pattern.length){
+			//			System.out.println("From Text: "+text[i]);
+			//			System.out.println("From Pattern: "+pattern[j]);
 			if(text[i] == pattern[j]){
 				i++;
 				j++;
+				if(j == pattern.length-1) {
+					return i-j;
+				}
 			}else{
-				if(j!=0){
+				if(j>0){
 					j = lps[j-1];
 				}else{
 					i++;
 				}
 			}
 		}
-		if(j == pattern.length){
-			return true;
-		}
-		return false;
+
+		return -1;
 	}
 
 
@@ -118,24 +127,27 @@ public class Driver {
 		return lps;
 	}	
 
-	private static int searchUsingBruteForce(String patternToSearch, String sampleText) {
-		int pointer = 0,i = 0;
-		int index = -1;
-		while(i<sampleText.length()) {
-			if(sampleText.charAt(i) == patternToSearch.charAt(pointer)) {
-				pointer++;
-				i++;
+	private static int searchUsingBruteForce(String pattern, String text) {
 
-				if(pointer == patternToSearch.length()) {
-					index = i - patternToSearch.length();
+		int j = 0,i = 0,startIndex=0;
+
+
+		for(startIndex=0; startIndex<text.length();startIndex++) {
+			i = startIndex;
+			while(i<text.length()) {
+				if(text.charAt(i) == pattern.charAt(j)) {
+					i++;
+					j++;
+					if(j==pattern.length()-1) {
+						return startIndex;
+					}
+				}
+				else {
+					j=0;
 					break;
 				}
 			}
-			else {
-				pointer=0;
-				i++;
-			}
 		}
-		return index;
+		return -1;
 	}
 }
