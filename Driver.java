@@ -13,16 +13,16 @@ import javafx.util.Pair;
 public class Driver {
 
 	public static void main(String[] args) {
-		final String sampleText = "TTATAGATCTCGTATTCTTTTATAGATCTCCTATTCTT";
-		final String patternToSearch = "TCCTATTCTT";
-		//		final String patternToSearch = "BARBER";
-		//		final String sampleText = "JIM_SAW_ME_IN_A_BARBERSHOP"; 
+		//		final String sampleText = "TTATAGATCTCGTATTCTTTTATAGATCTCCTATTCTT";
+		//		final String patternToSearch = "TCCTATTCTT";
+		final String patternToSearch = "VRB";
+		final String sampleText = "ABBCCCCCDDFDFDDVDFRGRGRTGTBTBTBTYTGBVEFVRBTHRYTVRB"; 
 		int naiveIndex = searchUsingBruteForce(patternToSearch, sampleText);
-		System.out.println(naiveIndex);
+		System.out.println("Naive "+naiveIndex);
 		int kmpIndex = searchUsingKMP(patternToSearch.toLowerCase().toCharArray(), sampleText.toLowerCase().toCharArray());
-		System.out.println(kmpIndex);
+		System.out.println("KMP: "+kmpIndex);
 		int horspoolIndex = searchUsingBoyerMooreHorspool(patternToSearch.toLowerCase(), sampleText.toLowerCase());
-		System.out.println(horspoolIndex);
+		System.out.println("Horspool: "+horspoolIndex);
 	}
 
 	private static int searchUsingBoyerMooreHorspool(String patternToSearch, String sampleText) {
@@ -82,7 +82,7 @@ public class Driver {
 
 	private static int searchUsingKMP(char[] pattern, char[] text) {
 		int lps[] = constructPiTable(pattern);
-		//		System.out.println(Arrays.toString(lps));
+				System.out.println(Arrays.toString(lps));
 		int i=0;
 		int j=0;
 		while(i < text.length && j < pattern.length){
@@ -91,15 +91,18 @@ public class Driver {
 			if(text[i] == pattern[j]){
 				i++;
 				j++;
-				if(j == pattern.length-1) {
-					return i-j;
-				}
+//				if(j == pattern.length-1) {
+//					return i-j;
+//				}
 			}else{
 				if(j>0){
 					j = lps[j-1];
 				}else{
 					i++;
 				}
+			}
+			if(j == pattern.length) {
+				return i-j;
 			}
 		}
 
@@ -130,24 +133,31 @@ public class Driver {
 	private static int searchUsingBruteForce(String pattern, String text) {
 
 		int j = 0,i = 0,startIndex=0;
+		if(pattern.length() == 0 && text.length() == 0)
+			return 0;
 
+		if(text.length() < pattern.length())
+			return -1;
 
 		for(startIndex=0; startIndex<text.length();startIndex++) {
 			i = startIndex;
-			while(i<text.length()) {
+			while(i<text.length() && j<pattern.length()) {
+
 				if(text.charAt(i) == pattern.charAt(j)) {
 					i++;
 					j++;
-					if(j==pattern.length()-1) {
-						return startIndex;
-					}
 				}
 				else {
 					j=0;
 					break;
 				}
+
+				if(j==pattern.length()) {
+					return startIndex;
+				}
 			}
 		}
+
 		return -1;
 	}
 }
