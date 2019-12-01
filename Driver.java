@@ -13,10 +13,11 @@ import javafx.util.Pair;
 public class Driver {
 
 	public static void main(String[] args) {
-		//		final String sampleText = "TTATAGATCTCGTATTCTTTTATAGATCTCCTATTCTT";
-		//		final String patternToSearch = "TCCTATTCTT";
-		final String patternToSearch = "VRB";
-		final String sampleText = "ABBCCCCCDDFDFDDVDFRGRGRTGTBTBTBTYTGBVEFVRBTHRYTVRB"; 
+		//				final String sampleText = "TTATAGATCTCGTATTCTTTTATAGATCTCCTATTCTT";
+		//				final String patternToSearch = "TCCTATTCTT";
+		final String patternToSearch = "abacab";
+		final String sampleText = "abacaabaccabacabaabb";
+
 		int naiveIndex = searchUsingBruteForce(patternToSearch, sampleText);
 		System.out.println("Naive "+naiveIndex);
 		int kmpIndex = searchUsingKMP(patternToSearch.toLowerCase().toCharArray(), sampleText.toLowerCase().toCharArray());
@@ -27,16 +28,28 @@ public class Driver {
 
 	private static int searchUsingBoyerMooreHorspool(String patternToSearch, String sampleText) {
 
+		int noOfComparisons = 0;
+		char hook = 'z';
 		int index = -1;
 		int shiftBy = 0;
+		int correctmatches = 0;
 		HashMap<Character, Integer> badMatchTable = constructBadMatchTable(patternToSearch);
-		int j = patternToSearch.length()-1;
+		printMap(badMatchTable);
+		int j = patternToSearch.length()-1;		
 		for(int i=patternToSearch.length()-1; i<sampleText.length();) {
-			//			System.out.println();
-			//			System.out.println(sampleText.charAt(i));
-			//			System.out.println(patternToSearch.charAt(j));
-			//			System.out.println("The search starts at "+i);
+			noOfComparisons++;
+//			System.out.println("Comparison happens between: ");
+//			System.out.println(sampleText.charAt(i));
+//			System.out.println(patternToSearch.charAt(j));
+//			System.out.println("The search starts at "+i);
+			if(j == patternToSearch.length()-1) {
+				hook = sampleText.charAt(i);
+//				System.out.println("Hook val: "+hook);
+				correctmatches = 0;
+			}
+
 			if(sampleText.charAt(i) == patternToSearch.charAt(j)) {
+				correctmatches++;
 				i--;
 				j--;
 
@@ -46,16 +59,18 @@ public class Driver {
 				}
 			}
 			else {
+//				System.out.println("Hook val: "+hook);
 				//				System.out.println("Getting the number for "+sampleText.charAt(i));
-				Integer shiftLength = (Integer)badMatchTable.get(sampleText.charAt(i));
+				Integer shiftLength = (Integer)badMatchTable.get(hook);
 				if(shiftLength==null) {
 					shiftLength = (Integer)badMatchTable.get('*');
 				}
 				shiftBy = shiftLength.intValue();
-				i+=shiftBy;
+				i = i+correctmatches+shiftBy;
 				j = patternToSearch.length()-1;
 			}
 		}
+		System.out.println("NO OF COMP (HOSR): "+noOfComparisons);
 		return index;
 	}
 
@@ -81,20 +96,23 @@ public class Driver {
 
 
 	private static int searchUsingKMP(char[] pattern, char[] text) {
+		int noOfComparisons = 0;
 		int lps[] = constructPiTable(pattern);
-				System.out.println(Arrays.toString(lps));
+		System.out.println("KMP table"+Arrays.toString(lps));
 		int i=0;
 		int j=0;
 		while(i < text.length && j < pattern.length){
 			//			System.out.println("From Text: "+text[i]);
 			//			System.out.println("From Pattern: "+pattern[j]);
 			if(text[i] == pattern[j]){
+				noOfComparisons++;
 				i++;
 				j++;
-//				if(j == pattern.length-1) {
-//					return i-j;
-//				}
+				//				if(j == pattern.length-1) {
+				//					return i-j;
+				//				}
 			}else{
+				noOfComparisons++;
 				if(j>0){
 					j = lps[j-1];
 				}else{
@@ -102,10 +120,11 @@ public class Driver {
 				}
 			}
 			if(j == pattern.length) {
+				System.out.println("No of Comp (KMP): "+noOfComparisons);
 				return i-j;
 			}
 		}
-
+		System.out.println("No of Comp (KMP): "+noOfComparisons);
 		return -1;
 	}
 
@@ -133,6 +152,7 @@ public class Driver {
 	private static int searchUsingBruteForce(String pattern, String text) {
 
 		int j = 0,i = 0,startIndex=0;
+		int noOfComparisons = 0;
 		if(pattern.length() == 0 && text.length() == 0)
 			return 0;
 
@@ -142,7 +162,7 @@ public class Driver {
 		for(startIndex=0; startIndex<text.length();startIndex++) {
 			i = startIndex;
 			while(i<text.length() && j<pattern.length()) {
-
+				noOfComparisons++;
 				if(text.charAt(i) == pattern.charAt(j)) {
 					i++;
 					j++;
@@ -153,11 +173,11 @@ public class Driver {
 				}
 
 				if(j==pattern.length()) {
+					System.out.println(noOfComparisons);
 					return startIndex;
 				}
 			}
 		}
-
 		return -1;
 	}
 }
